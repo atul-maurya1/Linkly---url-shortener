@@ -2,32 +2,46 @@ import { FcGoogle } from "react-icons/fc";
 import { FcBrokenLink } from "react-icons/fc";
 import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios'
-import {useState} from 'react'
+import {useState, useContext} from 'react'
+import UserContext from '../context/UserContext'
+import DashboardContext from '../context/DashboardContext'
 
 export default function Login() {
+
+  
 
   const[email , setEmail] = useState('')
   const[password, setPassword] = useState('')
   const [errors , serErrors] = useState('')
+  const [loading, setLoading] = useState(false);
+
+  const { setUser } = useContext(UserContext);	
+  const {fetchData} = useContext(DashboardContext)
+
 
 
 const navigate = useNavigate ()
 
 const handleOnSubmit = async (e) =>{
+
   e.preventDefault()
-  console.log(email, password)
+ setLoading(true)
   try{
-    const res = await axios.post("http://localhost:5000/api/v1/auth/login ",{
+    const res = await axios.post("http://localhost:5000/api/v1/auth/login",{
       email,
       password
     }, { withCredentials: true })
 
-    console.log("res ", res)
+   
+    setUser(res?.data?.data?.user)
+    await fetchData()
     navigate('/dashboard')
 
   }catch(err){
       const message =  err?.response?.data?.message;
       serErrors(message)
+  }finally{
+    setLoading(false)
   }
 
   
@@ -99,10 +113,12 @@ const handleOnSubmit = async (e) =>{
           
             <button
               type="submit"
+              disabled={loading}
+              // style={{ backgroundColor: loading ? "#e0e0e0" : "#007bff"}}
               onClick={handleOnSubmit}
               className="w-full bg-blue-700 text-white py-3 rounded-xl font-medium hover:bg-blue-600 transition"
-            >
-              Sign In
+            > {loading ? "Loging..."   : "Loging"}
+              
             </button>
           </form>
 

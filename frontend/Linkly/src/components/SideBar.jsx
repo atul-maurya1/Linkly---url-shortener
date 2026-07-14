@@ -5,11 +5,16 @@ import { IoIosSettings } from "react-icons/io";
 import { CiLink } from 'react-icons/ci';
 import { IoIosLogOut } from 'react-icons/io';
 import { IoMdCreate } from "react-icons/io";
-import axios from 'axios'
+import { FaUserAlt } from "react-icons/fa";
+import UserContext from '../context/UserContext'
+import {useContext} from "react"
 
+
+import axios from 'axios'
 
 const SideBar = () => {
 
+  const {user} = useContext(UserContext)
   const navigate = useNavigate()
 
   const handleOnClick = async (e) => {
@@ -21,8 +26,11 @@ const SideBar = () => {
           { withCredentials: true }
       )
       console.log("res ", res)
-
+       
       navigate('/login')
+      setUser(null);
+       setDashboard(null);
+
 
     }catch(e){
       console.error(e?.response?.data?.message)
@@ -98,9 +106,14 @@ const SideBar = () => {
             <IoIosSettings size={18} />
             <span>Setting</span>
           </NavLink>
+            <div className="flex my-3 items-center rounded-xl bg-gray-100 border border-gray-200 px-3 py-2.5  text-gray-800 text-xs font-poppins italic" >
+              <FaUserAlt />
+              <h2 className="pl-2" >{user?.email}</h2>
+        </div>
         </nav>
 
-        <button onClick={handleOnClick} className="flex cursor-pointer items-center gap-3 rounded-xl bg-red-100 px-3 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-200">
+      
+        <button onClick={handleOnClick} className=" flex cursor-pointer items-center gap-3 rounded-xl bg-red-100 px-3 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-200">
           <IoIosLogOut size={18} />
           <p>Logout</p>
         </button>

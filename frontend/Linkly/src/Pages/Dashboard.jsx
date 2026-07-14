@@ -2,36 +2,19 @@ import { LuMousePointerClick } from "react-icons/lu";
 import { PiCursorClickFill } from "react-icons/pi";
 import { MdDelete } from "react-icons/md";
 import LinkList from "../components/LinkList";
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useState , useContext  } from "react";
+import DashboardContext from '../context/DashboardContext'
 
 export default function Dashboard() {
-	const [totalClicks, setTotalClicks] = useState();
-	const [totalLinks, setTotalLinks] = useState();
-	const [Links, setLinks] = useState([]);
-	const [avgClick , setAvgClick] = useState(0)
 
-	useEffect(() => {
-		async function fetchData() {
-			const res = await axios.get(
-				"http://localhost:5000/api/v1/user/dashboard",
-				{ withCredentials: true },
-			);
-			const clicksCount = res?.data?.data?.totalClicks || 0;
-			const linkCount = res?.data?.data?.totalLinks || 0;
-			const linkList = res?.data?.data?.links;
-			const avgClicks =
-					linkCount > 0
-					? (clicksCount / linkCount).toFixed(2) : 0;
+	const {dashboard} = useContext(DashboardContext)
 
-			setLinks(linkList);
-			setTotalClicks(clicksCount);
-			setTotalLinks(linkCount);
-			setAvgClick(avgClicks)
+	const totalLinks = dashboard?.totalLinks || 0
+    let totalClicksCount = dashboard?.links?.reduce((a , b) => a + (b?.totalClicksOnUrl ), 0 )|| 0
+    const Links = dashboard?.links || []; 
 
-		}
-		fetchData();
-	}, []);
+	let avgClickRate =  totalClicksCount ? (totalClicksCount / totalLinks).toFixed(2) : 0
+
 
 	return (
 		<div>
@@ -59,7 +42,7 @@ export default function Dashboard() {
 							<p className="text-sm uppercase tracking-widest opacity-80">
 								Total Clicks
 							</p>
-							<h1 className="text-4xl font-bold mt-2">{totalClicks}</h1>
+							<h1 className="text-4xl font-bold mt-2">{totalClicksCount}</h1>
 						</div>
 						<div className="bg-white/20 rounded-full p-3">
 							<span className="text-2xl">
@@ -78,7 +61,7 @@ export default function Dashboard() {
 							<p className="text-sm uppercase tracking-widest opacity-80">
 								Avg Click Rate
 							</p>
-							<h1 className="text-4xl font-bold mt-2">{avgClick}%</h1>
+							<h1 className="text-4xl font-bold mt-2">{avgClickRate}%</h1>
 						</div>
 						<div className="bg-white/20 rounded-full p-3">
 							<span className="text-2xl">
@@ -104,13 +87,14 @@ export default function Dashboard() {
 					<span className="justify-self-center">Action</span>
 				</div>
 
-				{Links.length ? Links.map((link) => (
+				{ Links.length > 0 ? Links.map((link) => (
 					<LinkList
 						key={link._id}
 						id={link._id}
 						url={link.url}
 						shortUrl={link.shortUrl}
 						createdAt={link.createdAt}
+						totalClicksOnUrl={link.totalClicksOnUrl}
 					/>
 				)) : <h1 className="text-2xl font-poppins italic text-center text-blue-800 font-semibold py-20" >No Recent Links</h1> }
 			</div>

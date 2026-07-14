@@ -24,6 +24,7 @@ export const getUser = asyncHandler(async(req, res) => {
 
 export const dashboard = asyncHandler(async (req, res) => {
 	const userId = req.user._id;
+	
 	console.log("dashboard");
 	if (!userId) {
 		throw new apiError(401, "user not authenticated");
@@ -48,13 +49,11 @@ export const dashboard = asyncHandler(async (req, res) => {
 				_id: 0,
 				totalLinks: { $size: "$links" },
 				links: 1,
-				totalClicks: 1
-				
+					
 			},
 		},
 	]);
-	// console.log(req.user._id);
-	// console.log("url data: ", urlData);
+	
 
 	return res
 		.status(200)
@@ -69,7 +68,7 @@ export const urlClickData = asyncHandler(async(req, res) => {
 			$match: {url: new mongoose.Types.ObjectId(id)}
 		},
 		{
-			$count: "totalClick"
+			$count: "totalClick" 
 		}
 		
 	])

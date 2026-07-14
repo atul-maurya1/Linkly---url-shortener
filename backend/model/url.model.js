@@ -28,6 +28,7 @@ const urlSchema = new mongoose.Schema({
       type: String,
 
     },
+    totalClicksOnUrl: Number
   
 
 },{timestamps: true})

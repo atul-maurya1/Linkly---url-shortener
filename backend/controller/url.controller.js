@@ -72,20 +72,11 @@ export const redirectUrl = asyncHandler(async (req ,res )=> {
 		throw new apiError(404, "url no found")
 	}
 
-	// console.log(urlData[0].isActive)
-
-	// if(urlData[0].isActive===false){
-	// 	throw new apiError(404, "url is no longer support")
-	// }
-
-//	console.log("redirect ",)
-	const user = await User.findByIdAndUpdate(urlData[0].user, 
-	  { $inc: { totalClicks: 1 } },       // Increments the 'totalClicks' field by exactly 1
+		const user = await Url.findOneAndUpdate({urlCode: code}, 
+	  { $inc: { totalClicksOnUrl: 1 } },       // Increments the 'totalClicks' field by exactly 1
       { new: true} 
 	 )
-	// await user.totalClicks++
-
-	// await user.save()
+	
 
     res.redirect(302, urlData[0].url)  
  

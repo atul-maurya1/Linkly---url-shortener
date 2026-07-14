@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema({
 	refreshToken: {
 			type: String,
 		},
-    totalClicks: Number    
+   // totalClicks: Number    
 })
 
 

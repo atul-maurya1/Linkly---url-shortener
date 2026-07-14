@@ -1,7 +1,7 @@
 import { MdDelete } from "react-icons/md";
 
 
-const LinkList = ({ createdAt, id, url, shortUrl }) => {
+const LinkList = ({ createdAt, id, url, shortUrl, totalClicksOnUrl }) => {
 	
     return(
         <div>			
@@ -17,7 +17,7 @@ const LinkList = ({ createdAt, id, url, shortUrl }) => {
 
 						
 						<span className="w-fit px-4 py-1 text-sm font-semibold text-cyan-700 bg-cyan-100 rounded-full break-words break-all whitespace-normal">
-							44
+							{totalClicksOnUrl}
 						</span>
 
 						
