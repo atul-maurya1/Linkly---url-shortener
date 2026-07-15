@@ -17,7 +17,7 @@ const LinkList = ({ createdAt, id, url, shortUrl, totalClicksOnUrl }) => {
 
 						
 						<span className="w-fit px-4 py-1 text-sm font-semibold text-cyan-700 bg-cyan-100 rounded-full break-words break-all whitespace-normal">
-							{totalClicksOnUrl}
+							{totalClicksOnUrl || 0}
 						</span>
 
 						

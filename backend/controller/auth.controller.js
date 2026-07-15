@@ -228,11 +228,18 @@ export const changePassword = asyncHandler(async (req, res) => {
 		throw new apiError(400, "Unautherized");
 	}
 
-	if (!user.isPasswordCorrect(oldPassword)) {
-		throw new apiError(400, "Old Password is wrong");
+	
+	const isCorrect = await bcrypt.compare(oldPassword, user.password)
+	if(!isCorrect){
+		throw new apiError(400, "Old Password is wrong"); 
 	}
+	// if (! await user.isPasswordCorrect(oldPassword)) {
+	// 	throw new apiError(400, "Old Password is wrong");
+	// }
 
-	const updatedUser = await User.findById(user._id, { password: newPassword });
+	const updatedUser = await User.findById(user._id);
+    updatedUser.password = newPassword
+	await updatedUser.save({new : true})
 
 	const options = {
 		httpOnly: true,

@@ -9,9 +9,11 @@ export default function Dashboard() {
 
 	const {dashboard} = useContext(DashboardContext)
 
-	const totalLinks = dashboard?.totalLinks || 0
-    let totalClicksCount = dashboard?.links?.reduce((a , b) => a + (b?.totalClicksOnUrl ), 0 )|| 0
-    const Links = dashboard?.links || []; 
+//	console.log(dashboard)
+
+	const totalLinks = dashboard?.data?.totalLinks || 0
+    let totalClicksCount = dashboard?.message[0]?.totalClicks
+    const Links = dashboard?.data?.links || []; 
 
 	let avgClickRate =  totalClicksCount ? (totalClicksCount / totalLinks).toFixed(2) : 0
 
@@ -75,7 +77,7 @@ export default function Dashboard() {
 				</div>
 			</div>
 
-			<div className="px-8 py-8 mx-16 mt-16 bg-white border border-blue-200 rounded-3xl shadow-xl">
+			<div className="px-8 py-5 mx-16 mt-10 bg-white border border-blue-200 rounded-3xl shadow-xl">
 				<h1 className="pb-6 text-2xl font-bold text-blue-800 font-poppins">
 					Recent Links
 				</h1>

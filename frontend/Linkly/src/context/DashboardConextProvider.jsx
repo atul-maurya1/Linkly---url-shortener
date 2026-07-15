@@ -14,7 +14,8 @@ const DashboardContextProvider = ({children}) => {
          const res = await axios.get("http://localhost:5000/api/v1/user/dashboard",
                 { withCredentials: true },
         );
-        setDashboard(res.data.data)
+        setDashboard(res?.data)
+        //console.log("res.data ", res.data)
        }catch(e){
          console.log("Dashboard Error:", err.response?.data);
          setDashboard(null);

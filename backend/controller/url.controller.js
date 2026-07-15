@@ -16,14 +16,27 @@ export const inputUrl = asyncHandler(async (req, res) => {
 		throw new apiError(401, "Unautherised, please login")
 	}
 	
-	const { url } = req.body;
-	console.log(url)
+	const { url , uniqueCode} = req.body;
+	//console.log(uniqueCode)
 	if (!url) {
 		throw new apiError(400, "enter your url");
 	}
+     console.log(uniqueCode.trim().length)
+	if(uniqueCode.trim().length > 6){
+       throw new apiError(400, "length less than 6 chars");
+	}
+
 	const validUrl =  urlValidation(url);
 
-	const urlCode = nanoid(6);
+	const isUniqueCode = await Url.findOne({urlCode: uniqueCode})
+	if(isUniqueCode){
+		throw new apiError(400, "please choose unique name");
+	}
+    
+	let urlCode
+	if(!uniqueCode) {
+      urlCode = nanoid(6);
+	} else urlCode = uniqueCode
 
 	let shortUrl = `${process.env.BASE_URL}${urlCode}`;
 
@@ -37,7 +50,7 @@ export const inputUrl = asyncHandler(async (req, res) => {
 	if (!saveUrl) {
 		throw new apiError(400, "something went wrong");
 	}
-	console.log(saveUrl);
+	//console.log(saveUrl);
 	return res
 		.status(201)
 		.json(new apiResponse(201, saveUrl, "Short URL created successfully"));
