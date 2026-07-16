@@ -7,7 +7,7 @@ export const sendMail = async (to, subject, message) => {
     console.log("Sending email to:", to);
 
     const data = await resend.emails.send({
-      from: process.env.EMAIL,
+      from: "matul8081@gmail.com",
       to,
       subject,
       html: message,
