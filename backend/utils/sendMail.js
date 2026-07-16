@@ -4,6 +4,9 @@ export const sendMail = async (to, subject, message) => {
     console.log('Sending email to: ', to);
     try{
         const transporter = nodemailer.createTransport({
+            host: "smtp.gmail.com",
+            port: 587,
+            secure: true,
             service: 'gmail',
             auth: {
                 user: process.env.EMAIL,

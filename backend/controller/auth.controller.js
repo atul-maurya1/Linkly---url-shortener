@@ -38,8 +38,7 @@ export const userRegister = asyncHandler(async (req, res) => {
 	}
 
 	const otp = generateOTP(6);
-	//console.log(typeof otp)
-
+	
 	const createdUser = await User.create({
 		email,
 		password,

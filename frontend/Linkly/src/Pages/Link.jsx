@@ -17,7 +17,7 @@ const Link = () => {
 		setLoading(true)
 		
 		try{
-			const res = await axios.get(`http://localhost:5000/api/v1/user/urls?page=${page}&limit=6`, {
+			const res = await axios.get(`https://linkly-url-shortener-4gr0.onrender.com/api/v1/user/urls?page=${page}&limit=6`, {
 			 withCredentials: true 
 		})
 		setLinks(res?.data?.data?.urls)

@@ -13,12 +13,13 @@ export default function VerifyOTP() {
   const navigate = useNavigate()
   const [otp, setOtp] = useState('')
   const [errors , setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const {id} = useParams()
 
   const handleOnSubmit = async (e) => {
     e.preventDefault()
-
+     setLoading(true)
     try{
    
       const res = await axios.post(`https://linkly-url-shortener-4gr0.onrender.com/api/v1/auth/verify-email/${id}`, {
@@ -28,14 +29,17 @@ export default function VerifyOTP() {
       await fetchData()
       setUser(res?.data?.data?.user) 
       navigate('/dashboard')
-      console.log(res.data)
+      //console.log(res.data)
 
     }catch(error){
       console.log("errr", error.response.data.message )
       const message =    error.response?.data?.message ||error.message || "Something went wrong";
 			setError(message);
-      console.log("error ", error.message)
+      setLoading(false)
+      //console.log("error ", error.message)
 
+    }finally{
+      setLoading(false)
     }
 
   }
@@ -94,9 +98,10 @@ export default function VerifyOTP() {
           <button
             type="submit"
             onClick={handleOnSubmit}
+            disabled={loading}
             className="w-full mt-8 bg-blue-700 text-white py-3 rounded-xl font-medium hover:bg-blue-600 transition"
           >
-            Verify OTP
+            {loading ? "Verifing.." :"Verify OTP"}
           </button>
         </form>
 

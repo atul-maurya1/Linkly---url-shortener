@@ -9,11 +9,12 @@ const Signup = () => {
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [errors, setError] = useState("");
+	const [loading , setLoading] = useState(false)
 
 	const navigate = useNavigate();
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-
+        setLoading(true)
 		try {
 			const res = await axios.post(
 				"https://linkly-url-shortener-4gr0.onrender.com/api/v1/auth/register",
@@ -23,14 +24,16 @@ const Signup = () => {
 					confirmPassword,
 				},
 			);
-
-			console.log("res ", res.data);
+			
 			const id = res.data.data._id;
 			navigate(`/otp-verification/${id}`);
 		} catch (error) {
 			const message =  error.response.data.message ;
 			setError(message);
+			setLoading(false)
 			//console.log("error is ", message);
+		}finally{
+			setLoading(false)
 		}
 	};
 	return (
@@ -95,9 +98,10 @@ const Signup = () => {
 						<button
 							to="otp-verification"
 							type="submit"
+							disabled={loading}
 							className="w-full bg-blue-700 text-white py-3 rounded-xl font-medium hover:bg-blue-600 transition"
 						>
-							Create Account
+							{loading ? "Creating..." : "Create Account"}
 						</button>
 						<div>{errors && <p className="text-red-500">{errors}</p>}</div>
 					</form>
