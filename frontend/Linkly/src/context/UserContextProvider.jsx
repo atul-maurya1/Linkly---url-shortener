@@ -13,7 +13,7 @@ const UserContextProvider = ({ children }) => {
 					"http://localhost:5000/api/v1/user/get-user",
 					{
 						withCredentials: true,
-					},
+					}, 
 				);
                 
                 setUser(res.data.data);

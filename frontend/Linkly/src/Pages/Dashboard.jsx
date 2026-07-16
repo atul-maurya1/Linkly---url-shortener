@@ -9,11 +9,11 @@ export default function Dashboard() {
 
 	const {dashboard} = useContext(DashboardContext)
 
-//	console.log(dashboard)
+//  console.log(dashboard)
 
-	const totalLinks = dashboard?.data?.totalLinks || 0
-    let totalClicksCount = dashboard?.message[0]?.totalClicks
-    const Links = dashboard?.data?.links || []; 
+	const totalLinks = dashboard?.data?.totalUrl || 0
+    let totalClicksCount = dashboard?.data?.totalClick[0]?.totalClicks
+    const Links = dashboard?.data?.urlData || []; 
 
 	let avgClickRate =  totalClicksCount ? (totalClicksCount / totalLinks).toFixed(2) : 0
 

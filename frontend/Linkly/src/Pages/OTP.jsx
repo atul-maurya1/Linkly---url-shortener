@@ -1,10 +1,13 @@
 import { Link ,useNavigate, useParams} from "react-router-dom";
 import { FcBrokenLink } from "react-icons/fc";
-import {useState} from 'react'
+import {useState , useContext} from 'react'
 import axios from 'axios'
+import DashboardContext from '../context/DashboardContext'
 
 
 export default function VerifyOTP() {
+
+  const {fetchData} = useContext(DashboardContext)
 
   const navigate = useNavigate()
   const [otp, setOtp] = useState('')
@@ -21,8 +24,8 @@ export default function VerifyOTP() {
         otp, }, { 
     withCredentials: true
   })
- navigate('/dashboard')
-
+      fetchData()  // fix during create acc. use laoding 
+      navigate('/dashboard')
       console.log(res.data)
 
     }catch(error){

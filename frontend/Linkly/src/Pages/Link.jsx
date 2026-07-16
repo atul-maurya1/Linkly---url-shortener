@@ -1,12 +1,52 @@
 import LinkList from "../components/LinkList";
-import DashboardContext from "../context/DashboardContext";
-import { useContext } from "react";
+import { useEffect , useState} from "react";
 import {NavLink} from 'react-router-dom'
+import axios from 'axios'
+
 
 const Link = () => {
-	const { dashboard } = useContext(DashboardContext);
-	const Links = dashboard?.links || [];
 
+	const [page , setPage] = useState(1)
+	const [links , setLinks] = useState([])
+	const [loading , setLoading] = useState(false)
+     const [totalPages, setTotalPages] = useState(1);
+
+	
+	const fetchUrls = async () => {
+		
+		setLoading(true)
+		
+		try{
+			const res = await axios.get(`http://localhost:5000/api/v1/user/urls?page=${page}&limit=6`, {
+			 withCredentials: true 
+		})
+		setLinks(res?.data?.data?.urls)
+		setTotalPages(res?.data?.data?.totalPages);
+		
+		}catch(e){
+			setLoading(false)
+		}finally{
+			setLoading(false)
+		} 
+	}
+
+		function handleNext (e) {
+			// only go to next page when we have a full page of results
+			e.preventDefault()
+			if(page >= totalPages)return
+			setPage((prev) => prev + 1)
+			
+		}
+	function handlePrev (e) {
+			e.preventDefault()
+			if(page === 1) return
+			setPage((prev) => prev - 1)
+	}	
+
+	useEffect(() => {
+        fetchUrls()
+	},[page])
+	
 	return (
 		<div>
 			<div className="flex justify-between items-center p-5">
@@ -26,9 +66,11 @@ const Link = () => {
 				<span className="justify-self-center">Action</span>
 			</div>
 			<div>
-				<div className="h-130" >
-					{Links.length > 0 ? (
-						Links.map((link) => (
+				{
+					loading ? <p className="font-poppins text-blue-500 italic text-center pt-10" >Fetching...</p> :
+					<div className="h-130" >
+					{links.length > 0 ? (
+						links.map((link) => (
 							<LinkList
 								key={link._id}
 								id={link._id}
@@ -44,14 +86,19 @@ const Link = () => {
 						</h1>
 					)}
 				</div>
+				}
 
-				{Links.length > 6 ? <div className="flex justify-center gap-6 p pt-8">
-					<div className="bg-blue-800 text-white px-4 py-3 font-semibold rounded cursor-pointer hover:bg-blue-600 transition-transform duration-200 hover:scale-105">
+				{links.length >= 1  ? <div className="flex justify-center gap-6 p pt-8">
+					<button
+						onClick={handlePrev}
+						disabled={page === 1}
+						className={`px-4 py-3 font-semibold rounded transition-transform duration-200 ${page === 1 ? 'bg-blue-200 text-blue-400 cursor-not-allowed' : 'bg-blue-800 text-white hover:scale-105'}`}
+					>
 						Prev -
-					</div>
-					<div className="bg-blue-800 text-white px-4 py-3 font-semibold rounded cursor-pointer hover:bg-blue-600 transition-transform duration-200 hover:scale-105">
-						Next +{" "}
-					</div>
+					</button>
+					<button onClick={handleNext} disabled={page >= totalPages} className="bg-blue-800 text-white px-4 py-3 font-semibold rounded cursor-pointer  transition-transform duration-200 hover:scale-105">
+						Next - {page} {" "}
+					</button>
 				</div>: <div></div> }
 			</div>
 		</div>

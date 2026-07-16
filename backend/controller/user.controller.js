@@ -29,37 +29,15 @@ export const dashboard = asyncHandler(async (req, res) => {
 		throw new apiError(401, "user not authenticated");
 	}
 
-	const urlData = await User.aggregate([
-		{
-			$match: { _id: new mongoose.Types.ObjectId(userId) },
-		},
-		{
-			$lookup: {
-				from: "urls",
-				localField: "_id",
-				foreignField: "user",
-				pipeline: [
-					{
-						$sort: {
-							createdAt: -1,
-						},
-					},
-					{
-                      $limit: 4
-					},
-				],
-				as: "links",
-			},
-		},
+	const urlData = await Url.find({
+		user : new mongoose.Types.ObjectId(userId) 
+	}).limit(4)
 
-		{
-			$project: {
-				_id: 0,
-				totalLinks: { $size: "$links" },
-				links: 1,
-			},
-		},
-	]);
+		const totalUrl = await Url.find({
+		user : new mongoose.Types.ObjectId(userId) 
+	}).countDocuments()
+
+	//console.log(totalUrl)
 
 	const totalClick = await Url.aggregate([
 		{
@@ -83,7 +61,7 @@ export const dashboard = asyncHandler(async (req, res) => {
 
 	return res
 		.status(200)
-		.json(new apiResponse(200, urlData[0], totalClick, "data fetched successfully"));
+		.json(new apiResponse(200, {urlData, totalUrl, totalClick}, "data fetched successfully"));
 });
 
 export const urlClickData = asyncHandler(async (req, res) => {
@@ -98,3 +76,36 @@ export const urlClickData = asyncHandler(async (req, res) => {
 	]);
 	return res.status(200).json(new apiResponse(200, click[0], "data fetched"));
 });
+
+export const totalUrls = asyncHandler(async(req ,res) => {
+    const userId = req.user._id
+	const page = Number(req.query.page) || 1
+	const limit = Number(req.query.limit) || 6
+	const urls = await Url.aggregate([
+		{
+			$match: {user: new mongoose.Types.ObjectId(userId)}
+		},
+		{
+			$sort: {
+				createdAt: -1
+			}
+		},
+		{
+			$skip: (page - 1) * limit
+		},
+		{
+			$limit: limit
+		}
+	])
+
+	  const totalUrlsCount = await Url.countDocuments({
+    user: userId
+  });
+
+  const totalPages = Math.ceil(totalUrlsCount / limit);
+
+	return res.status(200).json(
+		new apiResponse(200, {urls, totalPages}, "User urls are feteched successfully")
+	)
+
+})
