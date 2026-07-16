@@ -1,21 +1,31 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
-const resend = new Resend(process.env.EMAIL_API);
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.EMAIL,
+    pass: process.env.EMAIL_PASSWORD,
+  },
+});
 
 export const sendMail = async (to, subject, message) => {
   try {
-    console.log("Sending email to:", to);
+    await transporter.verify();
+    console.log("SMTP Connected");
 
-    const data = await resend.emails.send({
-      from: "matul8081@gmail.com",
+    const info = await transporter.sendMail({
+      from: `"Linkly" <${process.env.EMAIL}>`,
       to,
       subject,
       html: message,
     });
 
-    console.log("Email sent:", data);
+    console.log("Email sent:", info.messageId);
+    return info;
   } catch (error) {
-    console.error("Email Error:", error);
+    console.error("Mail Error:", error);
     throw error;
   }
 };
