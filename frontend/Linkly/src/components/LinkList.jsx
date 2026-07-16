@@ -27,11 +27,11 @@ const LinkList = ({ createdAt, id, url, shortUrl, totalClicksOnUrl }) => {
 		});
 		
 		if (!result.isConfirmed) return
-		   const res = await axios.delete(`http://localhost:5000/api/v1/user/delete-url/${id}`,
+		   const res = await axios.delete(`https://linkly-url-shortener-4gr0.onrender.com/api/v1/user/delete-url/${id}`,
 			  { withCredentials: true },
 			)
            await fetchData()
-		   
+
 		Swal.fire("Deleted!", "Your link has been deleted.", "success");
 	
 	}

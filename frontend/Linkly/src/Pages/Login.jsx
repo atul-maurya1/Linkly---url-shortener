@@ -27,7 +27,7 @@ const handleOnSubmit = async (e) =>{
   e.preventDefault()
  setLoading(true)
   try{
-    const res = await axios.post("http://localhost:5000/api/v1/auth/login",{
+    const res = await axios.post("https://linkly-url-shortener-4gr0.onrender.com/api/v1/auth/login",{
       email,
       password
     }, { withCredentials: true })
@@ -39,6 +39,7 @@ const handleOnSubmit = async (e) =>{
 
   }catch(err){
       const message =  err?.response?.data?.message;
+      console.log(err)
       serErrors(message)
   }finally{
     setLoading(false)

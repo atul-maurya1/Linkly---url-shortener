@@ -10,7 +10,7 @@ const UserContextProvider = ({ children }) => {
 		async function fetchUser() {
 			try {
 				const res = await axios.get(
-					"http://localhost:5000/api/v1/user/get-user",
+					"https://linkly-url-shortener-4gr0.onrender.com/api/v1/user/get-user",
 					{
 						withCredentials: true,
 					}, 

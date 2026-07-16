@@ -11,13 +11,13 @@ const DashboardContextProvider = ({children}) => {
 
     async function fetchData () {
        try{
-         const res = await axios.get("http://localhost:5000/api/v1/user/dashboard",
+         const res = await axios.get("https://linkly-url-shortener-4gr0.onrender.com/api/v1/user/dashboard",
                 { withCredentials: true },
         );
         setDashboard(res?.data)
         //console.log("res.data ", res.data)
        }catch(e){
-         console.log("Dashboard Error:", err.response?.data);
+         //console.log("Dashboard Error:", err.response?.data);
          setDashboard(null);
        }
     }

@@ -16,7 +16,7 @@ const Signup = () => {
 
 		try {
 			const res = await axios.post(
-				"http://localhost:5000/api/v1/auth/register",
+				"https://linkly-url-shortener-4gr0.onrender.com/api/v1/auth/register",
 				{
 					email,
 					password,
