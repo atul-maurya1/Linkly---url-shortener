@@ -90,7 +90,7 @@ export const verifyEmail = asyncHandler(async (req, res) => {
 	const options = {
 		httpOnly: true,
 		secure: true,
-		sameSite: "strict", //Prevents CSRF attacks
+		sameSite: "none"
 	};
 
 	res.setHeader("Authorization", `Bearer ${accessToken}`);
@@ -130,12 +130,6 @@ export const login = asyncHandler(async (req, res) => {
 
 	}
 
-	// if (!await user.isPasswordCorrect("password")) {
-	// 	throw new apiError(400, "Incorrect Password"); 
-	// }
-
-	
-
 	const { accessToken, refreshToken } =
 		await generateAccessTokenAndRefreshToken(user._id);
 
@@ -146,7 +140,7 @@ export const login = asyncHandler(async (req, res) => {
 	const options = {
 		httpOnly: true,
 		secure: true,
-		sameSite: "strict", //Prevents CSRF attacks
+		sameSite: "none"
 	};
 
 	res.setHeader("Authorization", `Bearer ${accessToken}`);
@@ -181,7 +175,7 @@ export const logout = asyncHandler(async (req, res) => {
 	const options = {
 		httpOnly: true,
 		secure: true,
-		sameSite: "strict",
+		sameSite: "none"
 	};
 
 	res.setHeader("Authorization", `Bearer `);
@@ -241,7 +235,7 @@ export const changePassword = asyncHandler(async (req, res) => {
 	const options = {
 		httpOnly: true,
 		secure: true,
-		sameSite: "strict",
+		sameSite: "none"
 	};
 
 	res.setHeader("Authorization", `Bearer `); 
