@@ -49,7 +49,7 @@ export const userRegister = asyncHandler(async (req, res) => {
 	const user = await User.findById(createdUser._id).select("_id , email");
 
 
-	let message = `Your OTP is ${otp} , valid for 10 minutes`;
+	let message = <p>`Your OTP is ${otp} , valid for 10 minutes`</p>
 	await sendMail(user.email, "Mail Verification - Linkly", message);
 
 	return res

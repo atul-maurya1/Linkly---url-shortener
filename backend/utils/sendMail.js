@@ -1,28 +1,14 @@
-import nodemailer from 'nodemailer'
+import resend from 'resend'
 
 export const sendMail = async (to, subject, message) => {
     console.log('Sending email to: ', to);
-    try{
-        const transporter = nodemailer.createTransport({
-            host: "smtp.gmail.com",
-            port: 587,
-            secure: true,
-            service: 'gmail',
-            auth: {
-                user: process.env.EMAIL,
-                pass: process.env.EMAIL_PASSWORD
-            }
-        })
+   const resend = new Resend(process.env.EMAIL_API);
 
-        await transporter.sendMail({
-            from: process.env.EMAIL,
-            to,
-            subject,
-            html: message
-        });
+    resend.emails.send({
+    from: process.env.EMAIL,
+    to,
+    subject,
+    html: message
+    });
 
-
-    }catch(e){
-        console.error('Error creating transporter: ', e);
-    }
 }
