@@ -63,8 +63,6 @@ export const verifyEmail = asyncHandler(async (req, res) => {
 	const { otp } = req.body;
 	const { id } = req.params;
 
-	
-
 	if (!otp) {
 		throw new apiError(400, "please enter otp");
 	}

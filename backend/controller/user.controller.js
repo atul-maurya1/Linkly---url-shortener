@@ -64,18 +64,13 @@ export const dashboard = asyncHandler(async (req, res) => {
 		.json(new apiResponse(200, {urlData, totalUrl, totalClick}, "data fetched successfully"));
 });
 
-export const urlClickData = asyncHandler(async (req, res) => {
+export const deleteUrl = asyncHandler(async (req, res) => {
 	const id = req.params;
-	const click = await Click.aggregate([
-		{
-			$match: { url: new mongoose.Types.ObjectId(id) },
-		},
-		{
-			$count: "totalClick",
-		},
-	]);
-	return res.status(200).json(new apiResponse(200, click[0], "data fetched"));
-});
+	console.log("id ", id)
+	const deletedUrl = await Url.findByIdAndDelete(new mongoose.Types.ObjectId(id))
+	
+	return res.status(200).json(200, deletedUrl, "Url delete successfully")
+})
 
 export const totalUrls = asyncHandler(async(req ,res) => {
     const userId = req.user._id

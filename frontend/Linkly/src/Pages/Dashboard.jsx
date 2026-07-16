@@ -12,7 +12,7 @@ export default function Dashboard() {
 //  console.log(dashboard)
 
 	const totalLinks = dashboard?.data?.totalUrl || 0
-    let totalClicksCount = dashboard?.data?.totalClick[0]?.totalClicks
+    let totalClicksCount = dashboard?.data?.totalClick[0]?.totalClicks || 0
     const Links = dashboard?.data?.urlData || []; 
 
 	let avgClickRate =  totalClicksCount ? (totalClicksCount / totalLinks).toFixed(2) : 0

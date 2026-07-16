@@ -12,7 +12,7 @@ const Link = () => {
      const [totalPages, setTotalPages] = useState(1);
 
 	
-	const fetchUrls = async () => {
+	 const fetchUrls = async () => {
 		
 		setLoading(true)
 		
