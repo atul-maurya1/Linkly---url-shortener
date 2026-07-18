@@ -1,6 +1,8 @@
 import { PiShootingStarFill } from "react-icons/pi";
 import Card from '../components/Card'
 import companies from '../assets/CompinesLogos'
+import heroImage from "../assets/hero.png";
+
 import {
   SiSpeedypage,
   SiGoogleanalytics,
@@ -76,8 +78,8 @@ const Home = () => {
 
 				<div className="w-1/2 flex  py-10 relative ">
 					<img
-						src="src\assets\ae34a3f5-4b22-48a7-8d7f-add173119817.png"
-					></img>
+						src={heroImage} alt="heroimage"
+					/>
 				</div>
 			</div>
 			
