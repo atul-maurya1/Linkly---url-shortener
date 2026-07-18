@@ -2,6 +2,7 @@ import express from 'express'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import errorHandler from './middleware/error.middleware.js'
+import morgan from 'morgan'
 
 const app = express()
  
@@ -17,6 +18,9 @@ app.use(
 app.use(express.urlencoded({extended: true}))
 app.use(cookieParser())
 app.use(express.json())
+
+
+app.use(morgan('dev')) 
 
 //Routes
 import urlRouter from './routes/url.routes.js'
