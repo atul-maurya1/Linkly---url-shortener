@@ -71,7 +71,7 @@ export const userRegister = asyncHandler(async (req, res) => {
 		.json(
 			new apiResponse(
 				200,
-				{ user: loggedInUser },
+				{ user: user },
 				"Mail verified successfully",
 			),
 		);
