@@ -9,6 +9,8 @@ const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 
 export const sendMail = async (email, otp) => {
 
+  console.log("mail sending...")
+
    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
 
     sendSmtpEmail.sender = {
@@ -18,9 +20,11 @@ export const sendMail = async (email, otp) => {
 
     sendSmtpEmail.to = [
         {
-            email,
+            email: email,
         },
     ];
+
+    console.log("mail sended :  0")
 
     sendSmtpEmail.subject = "Your OTP Verification Code";
 
@@ -31,6 +35,10 @@ export const sendMail = async (email, otp) => {
         <p>This OTP will expire in 5 minutes.</p>
     `;
 
+    console.log("mail sended : 1")
+
     await apiInstance.sendTransacEmail(sendSmtpEmail);
+
+    console.log("mail sended : 2")
     
 };
