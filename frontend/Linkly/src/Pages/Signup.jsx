@@ -1,8 +1,9 @@
 import { FcGoogle, FcBrokenLink } from "react-icons/fc";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useState } from "react";
-
+import { useState, useContext } from "react";
+import DashboardContext from '../context/DashboardContext'
+import UserContext from '../context/UserContext'
 
 const Signup = () => {
 	const [email, setEmail] = useState("");
@@ -10,8 +11,13 @@ const Signup = () => {
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [errors, setError] = useState("");
 	const [loading , setLoading] = useState(false)
+   
+	const { setUser } = useContext(UserContext);
+	const {fetchData} = useContext(DashboardContext)
+	
 
 	const navigate = useNavigate();
+
 	const handleSubmit = async (e) => {
 		e.preventDefault();
         setLoading(true)
@@ -23,15 +29,18 @@ const Signup = () => {
 					password,
 					confirmPassword,
 				},
+				{withCredentials: true}
 			);
 			
-			const id = res.data.data._id;
-			navigate(`/otp-verification/${id}`);
+			  await fetchData()
+              setUser(res?.data?.data) 
+			 // console.log(res?.data?.data)
+              navigate('/dashboard')
 		} catch (error) {
 			const message =  error.response.data.message ;
 			setError(message);
 			setLoading(false)
-			//console.log("error is ", message);
+			console.log("error is ", message);
 		}finally{
 			setLoading(false)
 		}

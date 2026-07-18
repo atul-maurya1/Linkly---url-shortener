@@ -37,7 +37,7 @@ export const userRegister = asyncHandler(async (req, res) => {
 		throw new apiError(400, "User with this mail is already registered");
 	}
 
-	const otp = generateOTP(6);
+	//const otp = generateOTP(6);
 	
 	const createdUser = await User.create({
 		email,
@@ -50,43 +50,9 @@ export const userRegister = asyncHandler(async (req, res) => {
 
 
 	//let message = `Your OTP is ${otp} , valid for 10 minutes`;
-	await sendMail(user.email, otp);
+	//await sendMail(user.email, otp);
 
-	return res
-		.status(201)
-		.json(new apiResponse(201, user, "otp send successfully"));
-});
-
-export const verifyEmail = asyncHandler(async (req, res) => {
-	const { otp } = req.body;
-	const { id } = req.params;
-
-	if (!otp) {
-		throw new apiError(400, "please enter otp");
-	}
-
-	const user = await User.findById(id).select();
-	if (!user) {
-		throw new apiError(404, "user not found");
-	}
-	if (user.expiresAt < Date.now()) {
-		throw new apiError(400, "OTP is expiry");
-	}
-	if (user.otp !== otp) {
-		throw new apiError(400, "OTP is invalid");
-	}
-
-	user.isEmailVerified = true;
-	await user.save({ validateBeforeSave: false });
-
-	const { accessToken, refreshToken } =
-		await generateAccessTokenAndRefreshToken(id);
-
-	const loggedInUser = await User.findById(user._id).select(
-		"-password -refreshToken -otp  -expiresAt",
-	);
-
-	const options = {
+		const options = {
 		httpOnly: true,
 		secure: true,
 		sameSite: "none"
@@ -108,7 +74,64 @@ export const verifyEmail = asyncHandler(async (req, res) => {
 				"Mail verified successfully",
 			),
 		);
+
+	return res
+		.status(201)
+		.json(new apiResponse(201, user, "otp send successfully"));
 });
+
+// export const verifyEmail = asyncHandler(async (req, res) => {
+// 	const { otp } = req.body;
+// 	const { id } = req.params;
+
+// 	if (!otp) {
+// 		throw new apiError(400, "please enter otp");
+// 	}
+
+// 	const user = await User.findById(id).select();
+// 	if (!user) {
+// 		throw new apiError(404, "user not found");
+// 	}
+// 	if (user.expiresAt < Date.now()) {
+// 		throw new apiError(400, "OTP is expiry");
+// 	}
+// 	if (user.otp !== otp) {
+// 		throw new apiError(400, "OTP is invalid");
+// 	}
+
+// 	user.isEmailVerified = true;
+// 	await user.save({ validateBeforeSave: false });
+
+// 	const { accessToken, refreshToken } =
+// 		await generateAccessTokenAndRefreshToken(id);
+
+// 	const loggedInUser = await User.findById(user._id).select(
+// 		"-password -refreshToken -otp  -expiresAt",
+// 	);
+
+// 	const options = {
+// 		httpOnly: true,
+// 		secure: true,
+// 		sameSite: "none"
+// 	};
+
+// 	res.setHeader("Authorization", `Bearer ${accessToken}`);
+// 	res.setHeader("Access-Control-Expose-Headers", "Authorization"); //related to CORS (Cross-Origin Resource Sharing), allowa client JS to read header
+// 	// Browsers do NOT allow JavaScript to read custom headers from response
+
+// 	return res
+// 		.status(200)
+// 		.cookie("accessToken", accessToken, options)
+// 		.cookie("refreshToken", refreshToken, options)
+
+// 		.json(
+// 			new apiResponse(
+// 				200,
+// 				{ user: loggedInUser },
+// 				"Mail verified successfully",
+// 			),
+// 		);
+// });
 
 export const login = asyncHandler(async (req, res) => {
 	const { email, password } = req.body;
