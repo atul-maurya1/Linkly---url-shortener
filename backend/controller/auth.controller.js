@@ -42,7 +42,7 @@ export const userRegister = asyncHandler(async (req, res) => {
 	const createdUser = await User.create({
 		email,
 		password,
-		otp,
+		// otp,
 		expiresAt: new Date(Date.now() + 10 * 60 * 1000),
 	});
 
