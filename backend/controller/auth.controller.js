@@ -2,9 +2,9 @@ import mongoose from "mongoose";
 import apiError from "../utils/apiError.js";
 import apiResponse from "../utils/apiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
-import generateOTP from "../utils/optGenerator.js";
+// import generateOTP from "../utils/optGenerator.js";
 import User from "../model/user.model.js";
-import { sendMail } from "../utils/sendMail.js";
+// import { sendMail } from "../utils/sendMail.js";
 import bcrypt from 'bcrypt'
 
 export const generateAccessTokenAndRefreshToken = async (id) => {
@@ -42,8 +42,6 @@ export const userRegister = asyncHandler(async (req, res) => {
 	const createdUser = await User.create({
 		email,
 		password,
-		// otp,
-		expiresAt: new Date(Date.now() + 10 * 60 * 1000),
 	});
 
 	const user = await User.findById(createdUser._id).select("_id , email");

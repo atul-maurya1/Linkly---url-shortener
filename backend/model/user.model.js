@@ -12,11 +12,11 @@ const userSchema = new mongoose.Schema({
         lowercase: true,
         match: [/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Please provide a valid email address']
     },
-    otp: {
-        type: String,
+    // otp: {
+    //     type: String,
        
-    },
-    expiresAt: Date,
+    // },
+    // expiresAt: Date,
     password: {
         type: String,
         required: [true, "password is required"],
