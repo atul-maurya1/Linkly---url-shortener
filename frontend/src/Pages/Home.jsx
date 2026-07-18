@@ -82,7 +82,10 @@ const Home = () => {
 						alt="hero image"
 						className="max-w-full h-auto object-contain"
 						loading="lazy"
-					
+						onError={(e) => {
+							// fallback: hide broken image to avoid layout shift
+							e.target.style.display = 'none';
+						}}
 					/>
 				</div>
 			</div>
