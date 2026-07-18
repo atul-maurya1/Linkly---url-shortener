@@ -33,7 +33,7 @@ const Signup = () => {
 			);
 			
 			  await fetchData()
-              setUser(res?.data?.data) 
+              setUser(res?.data?.data?.user) 
 			 // console.log(res?.data?.data)
               navigate('/dashboard')
 		} catch (error) {

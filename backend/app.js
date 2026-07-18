@@ -9,7 +9,7 @@ const app = express()
 app.use(
   cors({
     origin: [
-      "http://localhost:5173",
+      "https://linkly-topaz.vercel.app/",
     ],
     credentials: true
   })
@@ -26,10 +26,12 @@ app.use(morgan('dev'))
 import urlRouter from './routes/url.routes.js'
 import authRouter from './routes/auth.routes.js'
 import userRouter from './routes/user.routes.js'
+import redirectRouter from './routes/redirect.routes.js'
 
 app.use('/api/v1/url', urlRouter)
 app.use('/api/v1/auth', authRouter)
 app.use('/api/v1/user', userRouter)
+app.use(redirectRouter)
 
 app.use(errorHandler)
 
