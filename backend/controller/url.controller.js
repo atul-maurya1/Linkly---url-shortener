@@ -90,6 +90,7 @@ export const redirectUrl = asyncHandler(async (req ,res )=> {
       { new: true} 
 	 )
 	
+	 console.log("url ", urlData[0].url)
 
     res.redirect(302, urlData[0].url)  
  
