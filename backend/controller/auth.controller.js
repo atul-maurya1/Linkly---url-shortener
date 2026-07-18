@@ -50,6 +50,9 @@ export const userRegister = asyncHandler(async (req, res) => {
 	//let message = `Your OTP is ${otp} , valid for 10 minutes`;
 	//await sendMail(user.email, otp);
 
+	const { accessToken, refreshToken } =
+ 		await generateAccessTokenAndRefreshToken(user._id)
+
 		const options = {
 		httpOnly: true,
 		secure: true,
