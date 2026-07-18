@@ -9,7 +9,8 @@ const app = express()
 app.use(
   cors({
     origin: [
-      "https://linkly-topaz.vercel.app/",
+      "https://linkly-topaz.vercel.app",
+      "http://localhost:5173"
     ],
     credentials: true
   })
