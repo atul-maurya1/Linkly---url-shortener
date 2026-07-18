@@ -78,7 +78,11 @@ const Home = () => {
 
 				<div className="w-1/2 flex  py-10 relative ">
 					<img
-						src={heroImage} alt="heroimage"
+						src={heroImage}
+						alt="hero image"
+						className="max-w-full h-auto object-contain"
+						loading="lazy"
+					
 					/>
 				</div>
 			</div>
