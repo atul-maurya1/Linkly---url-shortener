@@ -1,31 +1,36 @@
-import nodemailer from "nodemailer";
+import SibApiV3Sdk from "sib-api-v3-sdk";
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-});
+const client = SibApiV3Sdk.ApiClient.instance;
 
-export const sendMail = async (to, subject, message) => {
-  try {
-    await transporter.verify();
-    console.log("SMTP Connected");
+client.authentications["api-key"].apiKey = process.env.BREVO_API_KEY;
 
-    const info = await transporter.sendMail({
-      from: `"Linkly" <${process.env.EMAIL}>`,
-      to,
-      subject,
-      html: message,
-    });
+const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 
-    console.log("Email sent:", info.messageId);
-    return info;
-  } catch (error) {
-    console.error("Mail Error:", error);
-    throw error;
-  }
+
+export const sendMail = async (email, otp) => {
+
+   const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+
+    sendSmtpEmail.sender = {
+        name: "Linkly",
+        email: process.env.SENDER_EMAIL,
+    };
+
+    sendSmtpEmail.to = [
+        {
+            email,
+        },
+    ];
+
+    sendSmtpEmail.subject = "Your OTP Verification Code";
+
+    sendSmtpEmail.htmlContent = `
+        <h2>Email Verification</h2>
+        <p>Your OTP is:</p>
+        <h1>${otp}</h1>
+        <p>This OTP will expire in 5 minutes.</p>
+    `;
+
+    await apiInstance.sendTransacEmail(sendSmtpEmail);
+    
 };
