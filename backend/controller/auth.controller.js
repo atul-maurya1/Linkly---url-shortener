@@ -57,6 +57,7 @@ export const userRegister = asyncHandler(async (req, res) => {
 		httpOnly: true,
 		secure: true,
 		sameSite: "none"
+		
 	};
 
 	res.setHeader("Authorization", `Bearer ${accessToken}`);

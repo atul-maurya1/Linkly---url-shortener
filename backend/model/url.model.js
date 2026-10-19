@@ -3,18 +3,19 @@ import mongoose, { Schema } from 'mongoose'
 const urlSchema = new mongoose.Schema({
 
     user: {
-        type: Schema.Types.ObjectId,
-        ref: "users",
-       required: true, 
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true, 
         index: true
     },
-    url:{
+    originalUrl:{
        type: String,
        required: true,
        trim: true,
+       index: true
       
     },
-    urlCode: {
+    shortCode: {
        type: String,
        unique: true, // Prevents duplicate codes
        index: true,   // Extremely important for fast redirection
@@ -24,14 +25,14 @@ const urlSchema = new mongoose.Schema({
       type: Boolean,
       default: true
     },
-    shortUrl: {
-      type: String,
-
-    },
+    expireAt: Date,
+    title: String,
     totalClicksOnUrl: Number
   
 
 },{timestamps: true})
+
+
 
 const Url = mongoose.model("Url" ,urlSchema)
 export default Url

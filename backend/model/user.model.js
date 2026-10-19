@@ -12,26 +12,34 @@ const userSchema = new mongoose.Schema({
         lowercase: true,
         match: [/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Please provide a valid email address']
     },
-    // otp: {
-    //     type: String,
-       
-    // },
-    // expiresAt: Date,
     password: {
         type: String,
         required: [true, "password is required"],
         trim: true,
-        minlenght: [6, "password must be 6 chars"]
+        minlenght: [8, "password must be 8 chars"]
         
     },
     isEmailVerified: {
 			type: Boolean,
 			default: false,
 		},
+
+    plan: {
+       type: String,
+       enum: ['free', 'paid'],
+       default: "free"
+    },
+
+    loginDevices: [
+        {
+            type: String,
+        }
+    ],
+
 	refreshToken: {
 			type: String,
 		},
-   // totalClicks: Number    
+      
 })
 
 
@@ -41,9 +49,9 @@ userSchema.pre("save", async function(){
    this.password = await bcrypt.hash(this.password, 10)
 })
 
-// userSchema.methods.isPasswordCorrect = async function (password){
-//    return await bcrypt.compare(password, this.password)
-// }
+userSchema.methods.isPasswordCorrect = async function (password){
+   return await bcrypt.compare(password, this.password)
+}
 
 userSchema.methods.generateAccessToken = async function (){
      return jwt.sign(
