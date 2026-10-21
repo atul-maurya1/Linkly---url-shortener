@@ -2,14 +2,18 @@ import mongoose from "mongoose";
 import apiError from "../utils/apiError.js";
 import apiResponse from "../utils/apiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
-// import generateOTP from "../utils/optGenerator.js";
+import generateOTP from "../utils/optGenerator.js";
 import User from "../model/user.model.js";
-// import { sendMail } from "../utils/sendMail.js";
+import { sendMail } from "../utils/sendMail.js";
 import bcrypt from 'bcrypt'
+import redisClient from "../config/redis.js"
+import os from "node:os"
 
 export const generateAccessTokenAndRefreshToken = async (id) => {
 	try {
 		const user = await User.findById(id);
+
+		console.log("user ", user)
 
 		const accessToken = await user.generateAccessToken();
 		const refreshToken = await user.generateRefreshToken();
@@ -23,11 +27,15 @@ export const generateAccessTokenAndRefreshToken = async (id) => {
 	}
 };
 
+
+
 // register user
 export const userRegister = asyncHandler(async (req, res) => {
 	const { email, password, confirmPassword } = req.body;
 
-
+	if (!email || !password || !confirmPassword) {
+		throw new apiError(400, "please enter details");
+	}
 	if (password !== confirmPassword) {
 		throw new apiError(400, "password and confirmPassword is not matched");
 	}
@@ -36,28 +44,60 @@ export const userRegister = asyncHandler(async (req, res) => {
 	if (userExists) {
 		throw new apiError(400, "User with this mail is already registered");
 	}
+	const generateOtp = generateOTP(6);
+	console.log(generateOtp)
 
-	//const otp = generateOTP(6);
-	
+	let set = await redisClient.set(email, generateOtp, { EX: 300 }); // set otp in redis
+	await sendMail("OTP Verificaton -- Linkly", generateOtp, email); // send mail
+
 	const createdUser = await User.create({
 		email,
 		password,
 	});
 
-	const user = await User.findById(createdUser._id).select("_id , email");
+	return res
+		.status(201)
+		.json(new apiResponse(201, email, "otp send successfully"));
+});
 
 
-	//let message = `Your OTP is ${otp} , valid for 10 minutes`;
-	//await sendMail(user.email, otp);
+export const verifyEmail = asyncHandler(async (req, res) => {
+	
+	const { otp , email} = req.body;
+
+	if (!otp) {
+		throw new apiError(400, "please enter otp");
+	}
+    const savedOtp = await redisClient.get(email)  // get otp from redis
+
+	if(!savedOtp){
+		throw new apiError(400, "OTP Expire, please resend")
+	}
+	if(otp !== savedOtp){
+		throw new apiError(400, "Invalid OTP")
+	}
+
+	const user = await User.findOne({email})
+
+	console.log(user)
+
+	user.isEmailVerified = true;
+	user.loginDevices.push(os.type())
+	await user.save({ validateBeforeSave: false });
 
 	const { accessToken, refreshToken } =
- 		await generateAccessTokenAndRefreshToken(user._id)
+		await generateAccessTokenAndRefreshToken(user._id);
 
-		const options = {
+	const loggedInUser = await User.findById(user._id).select(
+		"-password -refreshToken   -expiresAt",
+	);
+
+	await redisClient.del(email)  // delete otp from redis
+
+	const options = {
 		httpOnly: true,
 		secure: true,
 		sameSite: "none"
-		
 	};
 
 	res.setHeader("Authorization", `Bearer ${accessToken}`);
@@ -72,68 +112,11 @@ export const userRegister = asyncHandler(async (req, res) => {
 		.json(
 			new apiResponse(
 				200,
-				{ user: user },
-				"Mail verified successfully",
+				{ user: loggedInUser },
+				"Mail verified and user created successfully",
 			),
 		);
-
-	return res
-		.status(201)
-		.json(new apiResponse(201, user, "otp send successfully"));
 });
-
-// export const verifyEmail = asyncHandler(async (req, res) => {
-// 	const { otp } = req.body;
-// 	const { id } = req.params;
-
-// 	if (!otp) {
-// 		throw new apiError(400, "please enter otp");
-// 	}
-
-// 	const user = await User.findById(id).select();
-// 	if (!user) {
-// 		throw new apiError(404, "user not found");
-// 	}
-// 	if (user.expiresAt < Date.now()) {
-// 		throw new apiError(400, "OTP is expiry");
-// 	}
-// 	if (user.otp !== otp) {
-// 		throw new apiError(400, "OTP is invalid");
-// 	}
-
-// 	user.isEmailVerified = true;
-// 	await user.save({ validateBeforeSave: false });
-
-// 	const { accessToken, refreshToken } =
-// 		await generateAccessTokenAndRefreshToken(id);
-
-// 	const loggedInUser = await User.findById(user._id).select(
-// 		"-password -refreshToken -otp  -expiresAt",
-// 	);
-
-// 	const options = {
-// 		httpOnly: true,
-// 		secure: true,
-// 		sameSite: "none"
-// 	};
-
-// 	res.setHeader("Authorization", `Bearer ${accessToken}`);
-// 	res.setHeader("Access-Control-Expose-Headers", "Authorization"); //related to CORS (Cross-Origin Resource Sharing), allowa client JS to read header
-// 	// Browsers do NOT allow JavaScript to read custom headers from response
-
-// 	return res
-// 		.status(200)
-// 		.cookie("accessToken", accessToken, options)
-// 		.cookie("refreshToken", refreshToken, options)
-
-// 		.json(
-// 			new apiResponse(
-// 				200,
-// 				{ user: loggedInUser },
-// 				"Mail verified successfully",
-// 			),
-// 		);
-// });
 
 export const login = asyncHandler(async (req, res) => {
 	const { email, password } = req.body;
