@@ -1,0 +1,72 @@
+import React, { useEffect } from 'react';
+import { X } from 'lucide-react';
+
+export default function Modal({
+  isOpen,
+  onClose,
+  title,
+  description,
+  children,
+  maxWidth = 'max-w-xl'
+}) {
+  useEffect(() => {
+    const handleKeyDown = e => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+      {/* Backdrop */}
+      <div
+        className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
+        onClick={onClose}
+      />
+
+      {/* Dialog box */}
+      <div
+        className={`relative w-full ${maxWidth} bg-white dark:bg-[#111827] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6 z-10 animate-in fade-in zoom-in-95 duration-200`}
+        role="dialog"
+        aria-modal="true"
+      >
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            {title && (
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                {title}
+              </h3>
+            )}
+            {description && (
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                {description}
+              </p>
+            )}
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            aria-label="Close modal"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {children}
+      </div>
+    </div>
+  );
+}
