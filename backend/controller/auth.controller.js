@@ -125,7 +125,7 @@ export const login = asyncHandler(async (req, res) => {
 		throw new apiError(404, "Please enter email and password");
 	}
 
-	const user = await User.findOne({ email });
+	const user = await User.findOne({ email: email.trim().toLowerCase() });
 	if (!user) {
 		throw new apiError(404, "email is not registerd");
 	}
@@ -195,27 +195,24 @@ export const logout = asyncHandler(async (req, res) => {
 });
 
 export const resendOtp = asyncHandler(async (req, res) => {
-	const { id } = req.params;
+	const { email } = req.body
 
-	const user = await User.findById(id);
-	if (!user) {
-		throw new apiError("400", "something went wrong");
-	}
+	const generateOtp = generateOTP(6);
 
-	const otp = generateOTP(6);
+	await redisClient.set(email, generateOtp, { EX: 300 });
 
-	await User.findByIdAndUpdate(user._id, {
-		$set: { otp, expiresAt: new Date(Date.now() + 10 * 60 * 1000) },
-	});
-
-	let message = `Your OTP is ${otp} , valid for 10 minutes`;
-	await sendMail(user.email, "Resend OTP Verification - Linkly", message);
+	await sendMail("Resend OTP Verification - Linkly", generateOtp, email);
 
 	return res.status(200).json(new apiResponse(200, "Otp resend successfully"));
 });
 
+
+
 export const changePassword = asyncHandler(async (req, res) => {
 	const { oldPassword, newPassword, confirmNewPassword } = req.body;
+	if(!oldPassword.trim() || !newPassword.trim() || !confirmNewPassword.trim() ){
+		throw new apiError(400, "please enter the values")
+	}
 
 	if (newPassword !== confirmNewPassword) {
 		throw new apiError(400, "new password and confirmNewPassword not matched");
@@ -229,7 +226,7 @@ export const changePassword = asyncHandler(async (req, res) => {
 	
 	const isCorrect = await bcrypt.compare(oldPassword, user.password)
 	if(!isCorrect){
-		throw new apiError(400, "Old Password is wrong"); 
+		throw new apiError(400, "Old Password is incorrect"); 
 	}
 	// if (! await user.isPasswordCorrect(oldPassword)) {
 	// 	throw new apiError(400, "Old Password is wrong");
@@ -255,12 +252,57 @@ export const changePassword = asyncHandler(async (req, res) => {
 		.json(new apiResponse(200, "Passowrd updated , login again "));
 });
 
-// export const forgotPassword = asyncHandler(async(req, res) => {
-//     const {email} = req.body
+export const forgotPassword = asyncHandler(async(req, res) => {
+    
+	const {email} = req.body
+    const user = await User.findOne({email})
+    if(!user){
+        throw new apiError(404, "email is not register")
+    }
+	const generateOtp = generateOTP(6);
 
-//     const user = await User.findOne({email})
-//     if(!user){
-//         throw new apiError(404, "email is not register")
-//     }
+	await redisClient.set(email, otp, { EX: 300 });
+	await sendMail("Password Reset -- Linkly", generateOtp, email);
 
-// })
+	return res.status(200).json(new apiResponse(200, email, "Otp sent successfully"));
+
+})
+
+export const verifyOtpForForgotPassword = asyncHandler(async(req, res) => {
+    const {email, otp} = req.body
+
+    const savedOtp = await redisClient.get(email)
+    if(!savedOtp){
+        throw new apiError(400, "OTP Expire, please resend")
+    }
+    if(otp !== savedOtp){
+        throw new apiError(400, "Invalid OTP")
+    }
+	await redisClient.del(email)
+	return res.status(200).json(new apiResponse(200, email, "Otp verified successfully"));
+})
+
+export const setNewPassword = asyncHandler(async(req, re) => {
+
+	const {email, password , confirmPassword} = req.body
+	if(!password.trim() || !confirmPassword.trim()){
+		throw new apiError(400, "please enter the password")
+	}
+
+	if(password !== confirmPassword){
+		throw new apiError(400, "password and confirmPassword not matched")
+	}
+
+	const user = await User.findOne({email})
+	if(!user){
+		throw new apiError(404, "user not found")
+	}
+
+	user.password = password
+	await user.save({validationBeforeSave: false})
+
+	return res.status(200).json(
+		new apiResponse(200, {}, "Password updated successfully, please login again")
+	)
+
+})
