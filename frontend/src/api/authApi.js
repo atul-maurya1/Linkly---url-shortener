@@ -13,12 +13,16 @@ export const login = async (email, password) => {
     }
 }
 
-export const register = async (name, email, password) => {
+export const register = async ( email, password, confirmPassword) => {
     try {
-        const response = await apiClient.post("/auth/register", { name, email, password });
+        const response = await apiClient.post("/auth/register", { email, password, confirmPassword });
         return response.data;
     } catch (error) {
-        throw error.response.data;
+        throw new Error(
+            error.response?.data?.message ||
+            error.message ||
+            "Unable to register. Please try again."
+        );
     }
 }
 
@@ -40,11 +44,15 @@ export const logout = async () => {
 //     }
 // }
 
-export const verifyEmail = async (token) => {
+export const verifyEmail = async (otp, email) => {
     try{
-        const response = await apiClient.get(`/auth/verify-email/${token}`);
+        const response = await apiClient.post('/auth/verify-email', {otp, email});
         return response.data;
     } catch (error) {
-        throw error.response.data;
+        throw new Error(
+            error.response?.data?.message ||
+            error.message ||
+            "Unable to verify your email. Please try again."
+        );
     }
 }

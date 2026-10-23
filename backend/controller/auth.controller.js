@@ -31,7 +31,8 @@ export const generateAccessTokenAndRefreshToken = async (id) => {
 
 // register user
 export const userRegister = asyncHandler(async (req, res) => {
-	const { email, password, confirmPassword } = req.body;
+	const { password, confirmPassword } = req.body;
+	const email = req.body.email?.trim().toLowerCase();
 
 	if (!email || !password || !confirmPassword) {
 		throw new apiError(400, "please enter details");
@@ -45,42 +46,42 @@ export const userRegister = asyncHandler(async (req, res) => {
 		throw new apiError(400, "User with this mail is already registered");
 	}
 	const generateOtp = generateOTP(6);
+
 	console.log(generateOtp)
 
-	let set = await redisClient.set(email, generateOtp, { EX: 300 }); // set otp in redis
+	await redisClient.set(email, generateOtp, { EX: 300 });
 	await sendMail("OTP Verificaton -- Linkly", generateOtp, email); // send mail
 
-	const createdUser = await User.create({
+	await User.create({
 		email,
 		password,
 	});
 
 	return res
 		.status(201)
-		.json(new apiResponse(201, email, "otp send successfully"));
+		.json(new apiResponse(201, {email: email}, "otp send successfully"));
 });
 
 
 export const verifyEmail = asyncHandler(async (req, res) => {
-	
-	const { otp , email} = req.body;
+	const { otp } = req.body;
+	const email = req.body.email?.trim().toLowerCase();
 
-	if (!otp) {
-		throw new apiError(400, "please enter otp");
+	if (!otp || !email) {
+		throw new apiError(400, "Please enter your email and verification code.");
 	}
-    const savedOtp = await redisClient.get(email)  // get otp from redis
-
+    const savedOtp = await redisClient.get(email)
 	if(!savedOtp){
 		throw new apiError(400, "OTP Expire, please resend")
 	}
-	if(otp !== savedOtp){
+	if(String(otp) !== savedOtp){
 		throw new apiError(400, "Invalid OTP")
 	}
 
 	const user = await User.findOne({email})
-
-	console.log(user)
-
+	if (!user) {
+		throw new apiError(404, "No account found for this email.");
+	}
 	user.isEmailVerified = true;
 	user.loginDevices.push(os.type())
 	await user.save({ validateBeforeSave: false });
@@ -198,7 +199,7 @@ export const resendOtp = asyncHandler(async (req, res) => {
 	const { email } = req.body
 
 	const generateOtp = generateOTP(6);
-
+    console.log("resend otp ", generateOtp)
 	await redisClient.set(email, generateOtp, { EX: 300 });
 
 	await sendMail("Resend OTP Verification - Linkly", generateOtp, email);

@@ -6,17 +6,19 @@ dotenv.config()
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendMail = async (subject, otp , to) => {
-    try{
-       const data = await resend.emails.send({
-        from: "Linkly<onboarding@resend.dev>",
+    const { data, error } = await resend.emails.send({
+        from: process.env.RESEND_FROM_EMAIL || "Linkly <onboarding@resend.dev>",
         to,
         subject,
         html: otpEmailTemplate(otp),
      });
-     console.log("mail send") 
-    }catch(err){
-        console.error("error while sending mail.. ", err)
+    if (error) {
+        throw new Error(`Unable to send verification email: ${error.message}`);
     }
+    if (!data) {
+        throw new Error("Unable to send verification email.");
+    }
+    return data;
 }
 
 

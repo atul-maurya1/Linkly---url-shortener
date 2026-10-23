@@ -1,5 +1,5 @@
 import { createContext, useState } from "react";
-import { login, register } from "../api/authApi";
+import { login, register, verifyEmail, logout } from "../api/authApi";
 
 export const AuthContext = createContext();
 
@@ -30,16 +30,49 @@ export const AuthProvider = ({ children }) => {
         }
     }
 
-    const registerUser = async (name, email, password) => {
+    const registerUser = async(email, password, confirmPassword) => {
         setIsLoading(true);
+        setError(null);
         try {
-            const response = await register(name, email, password);
-            setUser(response.data);
-            setIsAuthenticated(true);
+            const response = await register(email, password, confirmPassword);
+            return response;
         } catch (error) {
-            setError(error.message);
+            setError(error.message || "Unable to register. Please try again.");
+            return null;
         } finally {
             setIsLoading(false);
+        }
+    }
+
+    const userVerify = async(otp, email) => {
+        try{
+          setIsLoading(true);
+          setError(null);
+          const response = await verifyEmail(otp, email);
+          const loggedInUser = response?.data?.user;
+          if (!response?.success || !loggedInUser) {
+            throw new Error(response?.message || "Email verification did not return a user.");
+          }
+          setUser(loggedInUser);
+          setIsAuthenticated(true);
+          return response;
+        } catch (error) {
+            setError(error.message || "Unable to verify your email. Please try again.");
+            return null;
+        } finally {
+           setIsLoading(false);
+        }
+    }
+
+    const logoutUser = async () => {
+        try{
+           setIsLoading(true);
+           await logout()
+           setUser(null);
+        }catch(error){
+            setError(error.message)
+        }finally{
+          setIsLoading(false);
         }
     }
 
@@ -51,7 +84,10 @@ export const AuthProvider = ({ children }) => {
             error,
             setError,
             user,
-            isAuthenticated
+            setUser,
+            isAuthenticated,
+            userVerify,
+            logoutUser
              }} >
             {children}
         </AuthContext.Provider>

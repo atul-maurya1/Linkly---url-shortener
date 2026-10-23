@@ -19,7 +19,7 @@ import {
 import {AuthContext} from "../../context/AuthContext"
 
 export default function Sidebar({ isOpen, onClose }) {
-  const{user} = useContext(AuthContext)
+  const{user, logoutUser} = useContext(AuthContext)
 
   const navigate = useNavigate();
 
@@ -39,7 +39,7 @@ export default function Sidebar({ isOpen, onClose }) {
   ];
 
   const handleLogout = () => {
-    logout();
+    logoutUser();
     navigate('/');
   };
 

@@ -1,24 +1,31 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useApp } from '../../context/AppContext';
 import Button from '../../components/common/Button';
 import ThemeToggle from '../../components/common/ThemeToggle';
 import { Link2, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import {AuthContext} from "../../context/AuthContext"
 
 export default function RegisterPage() {
-  const { login } = useApp();
+
+  const {
+    registerUser,
+    error,
+    setError,
+    isLoading,
+    userVerify
+  } = useContext(AuthContext);
+
   const navigate = useNavigate();
 
-  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+ // const [isLoading, setIsLoading] = useState(false);
   const verificationInputs = useRef([]);
   const [isOtpStep, setIsOtpStep] = useState(false);
+
   const [verificationCode, setVerificationCode] = useState(['', '', '', '', '', '']);
 
   useEffect(() => {
@@ -43,46 +50,46 @@ export default function RegisterPage() {
 
   const strength = getPasswordStrength(password);
 
-  const handleSubmit = e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
     if (isOtpStep) {
       if (verificationCode.some(digit => !digit)) {
         setError('Please enter the 6-digit verification code.');
         return;
       }
 
-      setIsLoading(true);
-      setTimeout(() => {
-        login(email, password);
-        setIsLoading(false);
-        navigate('/dashboard');
-      }, 450);
+      const otp = verificationCode.join('');
+      const response = await userVerify(otp, email.trim().toLowerCase());
+      if (response?.success) {
+        navigate('/dashboard', { replace: true });
+      }
       return;
     }
 
-    if (!name.trim() || !email.trim() || !password.trim()) {
-      setError('Please complete all required fields.');
+    if (!email.trim()) {
+      setError('Enter your email.');
       return;
     }
-
     if (password.length < 8) {
       setError('Password must be at least 8 characters long.');
       return;
     }
-
     if (password !== confirmPassword) {
       setError('Passwords do not match.');
       return;
     }
-
     if (!agreeTerms) {
       setError('You must agree to the Terms of Service to create an account.');
       return;
     }
 
-    setIsOtpStep(true);
+    const normalizedEmail = email.trim().toLowerCase();
+    const response = await registerUser(normalizedEmail, password, confirmPassword);
+    if (response?.success) {
+      setEmail(response.data?.email || normalizedEmail);
+      setIsOtpStep(true);
+    }
   };
 
   return (
@@ -177,7 +184,7 @@ export default function RegisterPage() {
               </div>
             ) : (
               <>
-                <div>
+                {/* <div>
                   <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
                     Full Name
                   </label>
@@ -188,17 +195,17 @@ export default function RegisterPage() {
                     placeholder="Sarah Connor"
                     className="w-full px-3 py-2 text-sm rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-brand-500"
                   />
-                </div>
+                </div> */}
 
                 <div>
                   <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    Work Email
+                     Email
                   </label>
                   <input
                     type="email"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
-                    placeholder="sarah@company.com"
+                    placeholder="example@gmail.com"
                     className="w-full px-3 py-2 text-sm rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-brand-500"
                   />
                 </div>
