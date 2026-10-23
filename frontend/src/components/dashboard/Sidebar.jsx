@@ -1,4 +1,4 @@
-import React from 'react';
+import {React, useContext} from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import {
   Link2,
@@ -15,10 +15,12 @@ import {
   Sparkles,
   Zap
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+
+import {AuthContext} from "../../context/AuthContext"
 
 export default function Sidebar({ isOpen, onClose }) {
-  const { user, logout, setIsCreateModalOpen } = useApp();
+  const{user} = useContext(AuthContext)
+
   const navigate = useNavigate();
 
   const navItems = [
@@ -112,7 +114,7 @@ export default function Sidebar({ isOpen, onClose }) {
           <div className="flex items-center justify-between font-semibold text-slate-800 dark:text-slate-200">
             <span className="flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-brand-500" />
-              {user.plan}
+              {user?.plan || 'free'}
             </span>
             <Link
               to="/pricing"
@@ -137,16 +139,16 @@ export default function Sidebar({ isOpen, onClose }) {
         <div className="flex items-center justify-between p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/60 transition group">
           <Link to="/settings" className="flex items-center gap-2.5 min-w-0">
             <img
-              src={user.avatar}
-              alt={user.name}
+              src={user?.avatar}
+              alt={user?.name || user?.email || 'User'}
               className="w-8 h-8 rounded-full object-cover ring-2 ring-brand-500/20"
             />
             <div className="min-w-0">
               <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">
-                {user.name}
+                {user?.name || user?.email?.split('@')[0] || 'User'}
               </p>
               <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                {user.email}
+                {user?.email}
               </p>
             </div>
           </Link>

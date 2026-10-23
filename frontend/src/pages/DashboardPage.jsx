@@ -1,4 +1,4 @@
-import React from 'react';
+import {React, useContext} from 'react';
 import { useApp } from '../context/AppContext';
 import MetricCard from '../components/dashboard/MetricCard';
 import ClicksChart from '../components/dashboard/ClicksChart';
@@ -20,8 +20,13 @@ import {
 } from 'lucide-react';
 import { formatNumber } from '../utils/analyticsHelpers';
 
+import { AuthContext } from "../context/AuthContext"
+
 export default function DashboardPage() {
-  const { user, links, setIsCreateModalOpen, simulateClick } = useApp();
+  const { links, setIsCreateModalOpen, simulateClick } = useApp();
+
+  const {user} = useContext(AuthContext)
+
 
   // Aggregate metrics from links
   const totalClicks = links.reduce((sum, l) => sum + (l.clicks || 0), 0);
@@ -30,6 +35,7 @@ export default function DashboardPage() {
   const activeLinks = links.filter(l => l.status === 'active').length;
   const clicksToday = links.reduce((sum, l) => sum + (l.clicksToday || 0), 0);
   const avgDaily = Math.round(totalClicks / 30);
+  const firstName = user?.name?.split(' ')[0] || user?.email?.split('@')[0] || 'there';
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -38,7 +44,7 @@ export default function DashboardPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-              Welcome back, {user.name.split(' ')[0]}! 👋
+              Welcome back, {firstName}! 👋
             </h1>
           </div>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">

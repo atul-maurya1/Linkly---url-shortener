@@ -1,42 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useApp } from '../../context/AppContext';
 import Button from '../../components/common/Button';
 import ThemeToggle from '../../components/common/ThemeToggle';
-import { Link2, Eye, EyeOff, ArrowRight, ShieldCheck, Check } from 'lucide-react';
+import { Link2, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { AuthContext } from '../../context/AuthContext';
 
 export default function LoginPage() {
-  const { login } = useApp();
   const navigate = useNavigate();
-
-  const [email, setEmail] = useState('alex.rivera@acmelabs.io');
-  const [password, setPassword] = useState('password123');
+  const { loginUser, isLoading, setError, error } = useContext(AuthContext);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
 
-  const handleSubmit = e => {
+  const handleSubmit = async e => {
     e.preventDefault();
     setError('');
-
     if (!email.trim() || !password.trim()) {
       setError('Please fill in both email and password.');
       return;
     }
 
-    setIsLoading(true);
-
-    setTimeout(() => {
-      login(email, password);
-      setIsLoading(false);
-      navigate('/dashboard');
-    }, 400);
-  };
-
-  const handleFillDemo = () => {
-    setEmail('alex.rivera@acmelabs.io');
-    setPassword('password123');
+    const response = await loginUser(email, password);
+    if (response?.success) {
+      navigate('/dashboard', { replace: true });
+    }
   };
 
   return (
@@ -64,17 +52,6 @@ export default function LoginPage() {
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
               Access your shortened links and deep analytics dashboard.
             </p>
-          </div>
-
-          {/* Quick Demo Pill */}
-          <div
-            onClick={handleFillDemo}
-            className="mb-4 p-2.5 rounded-xl bg-brand-50/70 dark:bg-brand-950/40 border border-brand-200/60 dark:border-brand-800/60 text-xs text-brand-700 dark:text-brand-300 flex items-center justify-between cursor-pointer hover:bg-brand-100/60 transition"
-          >
-            <span>💡 Click to fill demo account credentials</span>
-            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-brand-600 text-white">
-              Autofill
-            </span>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4 text-xs">

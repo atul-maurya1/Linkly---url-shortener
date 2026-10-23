@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
+import { AuthProvider } from './context/AuthContext';
 
 // Public pages
 import LandingPage from './pages/LandingPage';
@@ -25,7 +26,8 @@ import SettingsPage from './pages/SettingsPage';
 export default function App() {
   return (
     <AppProvider>
-      <BrowserRouter>
+      <AuthProvider>
+          <BrowserRouter>
         <Routes>
           {/* Public Marketing & Pricing */}
           <Route path="/" element={<LandingPage />} />
@@ -52,9 +54,10 @@ export default function App() {
           </Route>
 
           {/* Fallback route */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </BrowserRouter>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </AppProvider>
   );
 }

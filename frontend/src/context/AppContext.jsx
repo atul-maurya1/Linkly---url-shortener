@@ -32,24 +32,24 @@ export function AppProvider({ children }) {
     setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
   };
 
-  // Auth State
-  const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem('linkly_user');
-    return saved ? JSON.parse(saved) : INITIAL_USER;
-  });
+  // // Auth State
+  // const [user, setUser] = useState(() => {
+  //   const saved = localStorage.getItem('linkly_user');
+  //   return saved ? JSON.parse(saved) : INITIAL_USER;
+  // });
 
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    const saved = localStorage.getItem('linkly_auth');
-    return saved ? JSON.parse(saved) : true;
-  });
+  // const [isAuthenticated, setIsAuthenticated] = useState(() => {
+  //   const saved = localStorage.getItem('linkly_auth');
+  //   return saved ? JSON.parse(saved) : true;
+  // });
 
-  useEffect(() => {
-    localStorage.setItem('linkly_user', JSON.stringify(user));
-  }, [user]);
+  // useEffect(() => {
+  //   localStorage.setItem('linkly_user', JSON.stringify(user));
+  // }, [user]);
 
-  useEffect(() => {
-    localStorage.setItem('linkly_auth', JSON.stringify(isAuthenticated));
-  }, [isAuthenticated]);
+  // useEffect(() => {
+  //   localStorage.setItem('linkly_auth', JSON.stringify(isAuthenticated));
+  // }, [isAuthenticated]);
 
   // Links State
   const [links, setLinks] = useState(() => {
@@ -354,10 +354,7 @@ export function AppProvider({ children }) {
       value={{
         theme,
         toggleTheme,
-        user,
-        setUser,
-        isAuthenticated,
-        setIsAuthenticated,
+       
         login,
         logout,
         updateUserProfile,
