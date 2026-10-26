@@ -10,7 +10,7 @@ app.use(
   cors({
     origin: [
       "https://linkly1-gold.vercel.app",
-      "https://shyurl.vercel.app/",
+      "https://shyurl.vercel.app",
       "http://localhost:5173"
     ],
     credentials: true
