@@ -209,7 +209,7 @@ export const getUser = asyncHandler(async (req, res) => {
 
 	return res
 		.status(200)
-		.json(new apiResponse(200, user, "User fected successfully"));
+		.json(new apiResponse(200, {user}, "User fected successfully"));
 });
 
 
@@ -272,17 +272,18 @@ export const changePassword = asyncHandler(async (req, res) => {
 });
 
 export const forgotPassword = asyncHandler(async(req, res) => {
-    
-	const {email} = req.body
+	console.log("ping")
+    const {email} = req.body
     const user = await User.findOne({email})
     if(!user){
         throw new apiError(404, "email is not register")
     }
 	const generateOtp = generateOTP(6);
-
-	await redisClient.set(email, otp, { EX: 300 });
-	await sendMail("Password Reset -- Linkly", generateOtp, email);
-
+	console.log(generateOtp)
+    await redisClient.set(email, generateOtp, { EX: 300 });
+	
+    await sendMail("Password Reset -- Linkly", generateOtp, email);
+	
 	return res.status(200).json(new apiResponse(200, email, "Otp sent successfully"));
 
 })
@@ -295,13 +296,13 @@ export const verifyOtpForForgotPassword = asyncHandler(async(req, res) => {
         throw new apiError(400, "OTP Expire, please resend")
     }
     if(otp !== savedOtp){
-        throw new apiError(400, "Invalid OTP")
+        throw new apiError(400, "Incorrect OTP")
     }
 	await redisClient.del(email)
 	return res.status(200).json(new apiResponse(200, email, "Otp verified successfully"));
 })
 
-export const setNewPassword = asyncHandler(async(req, re) => {
+export const setNewPassword = asyncHandler(async(req, res) => {
 
 	const {email, password , confirmPassword} = req.body
 	if(!password.trim() || !confirmPassword.trim()){
@@ -309,7 +310,7 @@ export const setNewPassword = asyncHandler(async(req, re) => {
 	}
 
 	if(password !== confirmPassword){
-		throw new apiError(400, "password and confirmPassword not matched")
+		throw new apiError(400, "Passwords do not match")
 	}
 
 	const user = await User.findOne({email})

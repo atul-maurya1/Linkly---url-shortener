@@ -1,10 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import Button from '../../components/common/Button';
 import ThemeToggle from '../../components/common/ThemeToggle';
 import { Link2, ArrowLeft, Mail, CheckCircle2 } from 'lucide-react';
 
+import {AuthContext} from "../../context/AuthContext"
+
 export default function ForgotPasswordPage() {
+
+  const {forgetPassword, setError, error, isLoading, verifyOtp, setnewPassword} = useContext(AuthContext)
+
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -12,17 +17,21 @@ export default function ForgotPasswordPage() {
   const [otpVerified, setOtpVerified] = useState(false);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [passwordError, setPasswordError] = useState('');
   const [passwordChanged, setPasswordChanged] = useState(false);
 
-  const handlePasswordSubmit = e => {
+  const handlePasswordSubmit = async e => {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      setPasswordError('Passwords do not match.');
+     if (password !== confirmPassword) {
+      setError('Passwords do not match.');
       return;
     }
-    setPasswordError('');
-    setPasswordChanged(true);
+    const email = localStorage.getItem("email")
+    const res = await setnewPassword(email, password, confirmPassword)
+    if(res?.success){
+        setPasswordChanged(true);
+        localStorage.removeItem("email")
+    }
+    
   };
 
   const handleOtpChange = (index, value) => {
@@ -37,15 +46,31 @@ export default function ForgotPasswordPage() {
     }
   };
 
-  const handleSubmit = e => {
-    e.preventDefault();
-    if (!email.trim()) return;
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setSent(true);
-    }, 500);
-  };
+  const handleOTP = async (e) => {
+     e.preventDefault()
+     let OTP = otp.join('')
+     const email = localStorage.getItem("email")
+     setEmail(email)
+     const res = await verifyOtp(email, OTP)
+     if(res?.success){
+      setOtpVerified(true)
+     }
+
+  }
+
+    const handleSubmit = async e => {
+      e.preventDefault();
+      if (!email.trim()){
+         setError("Please insert email")
+         return
+      } 
+     const res = await forgetPassword(email)
+     if(res?.success){
+      console.log("yes")
+      localStorage.setItem('email', res.data)
+      setSent(true)
+     }
+   };
 
   return (
     <div className="min-h-screen flex flex-col justify-between bg-slate-50 dark:bg-[#090d16] text-slate-900 dark:text-slate-100 transition-colors">
@@ -92,34 +117,71 @@ export default function ForgotPasswordPage() {
                       <label htmlFor="new-password" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                         New Password
                       </label>
-                      <input
-                        id="new-password"
-                        type="password"
-                        required
-                        minLength={8}
-                        value={password}
-                        onChange={e => setPassword(e.target.value)}
-                        autoComplete="new-password"
-                        className="w-full px-3 py-2 text-sm rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-brand-500"
-                      />
+                      <div className="relative">
+                        <input
+                          id="new-password"
+                          type="password"
+                          required
+                          minLength={8}
+                          value={password}
+                          onChange={e => (setPassword(e.target.value), setError(""))}
+                          autoComplete="new-password"
+                          className="w-full px-3 py-2 pr-12 text-sm rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-brand-500"
+                        />
+                        <button
+                          type="button"
+                          aria-controls="new-password"
+                          aria-label="Show new password"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 px-1 text-xs font-semibold text-brand-600 dark:text-brand-400"
+                          onClick={e => {
+                            const input = e.currentTarget.parentElement.querySelector('input');
+                            const showing = input.type === 'text';
+                            input.type = showing ? 'password' : 'text';
+                            e.currentTarget.textContent = showing ? 'Show' : 'Hide';
+                            e.currentTarget.setAttribute('aria-label', showing ? 'Show new password' : 'Hide new password');
+                            e.currentTarget.setAttribute('aria-pressed', showing ? 'false' : 'true');
+                          }}
+                        >
+                          Show
+                        </button>
+                      </div>
                     </div>
                     <div>
                       <label htmlFor="confirm-password" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                         Confirm New Password
                       </label>
-                      <input
-                        id="confirm-password"
-                        type="password"
-                        required
-                        minLength={8}
-                        value={confirmPassword}
-                        onChange={e => setConfirmPassword(e.target.value)}
-                        autoComplete="new-password"
-                        className="w-full px-3 py-2 text-sm rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-brand-500"
-                      />
+                      <div className="relative">
+                        <input
+                          id="confirm-password"
+                          type="password"
+                          required
+                          minLength={8}
+                          value={confirmPassword}
+                          onChange={e => (setConfirmPassword(e.target.value), setError(""))}
+                          autoComplete="new-password"
+                          className="w-full px-3 py-2 pr-12 text-sm rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-brand-500"
+                        />
+                        <button
+                          type="button"
+                          aria-controls="confirm-password"
+                          aria-label="Show confirm password"
+                          aria-pressed="false"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 px-1 text-xs font-semibold text-brand-600 dark:text-brand-400"
+                          onClick={e => {
+                            const input = e.currentTarget.parentElement.querySelector('input');
+                            const showing = input.type === 'text';
+                            input.type = showing ? 'password' : 'text';
+                            e.currentTarget.textContent = showing ? 'Show' : 'Hide';
+                            e.currentTarget.setAttribute('aria-label', showing ? 'Show confirm password' : 'Hide confirm password');
+                            e.currentTarget.setAttribute('aria-pressed', showing ? 'false' : 'true');
+                          }}
+                        >
+                          Show
+                        </button>
+                      </div>
                     </div>
-                    {passwordError && <p className="text-xs text-red-600" role="alert">{passwordError}</p>}
-                    <Button type="submit" variant="electric" size="lg" className="w-full">
+                    {error && <p className="text-xs text-red-600" role="alert">{error}</p>}
+                    <Button type="submit" loading={isLoading} variant="electric" size="lg" className="w-full">
                       Change Password
                     </Button>
                   </form>
@@ -132,7 +194,7 @@ export default function ForgotPasswordPage() {
                   <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                     We've sent a 6-digit code to <strong>{email}</strong>.
                   </p>
-                  <form onSubmit={e => { e.preventDefault(); setOtpVerified(true); }} className="space-y-5 pt-2">
+                  <form onSubmit={handleOTP} className="space-y-5 pt-2">
                     <div className="flex justify-center gap-2" aria-label="6-digit verification code">
                       {otp.map((digit, index) => (
                         <input
@@ -144,7 +206,7 @@ export default function ForgotPasswordPage() {
                           maxLength={1}
                           required
                           value={digit}
-                          onChange={e => handleOtpChange(index, e.target.value)}
+                          onChange={e => (handleOtpChange(index, e.target.value), setError(""))}
                           onKeyDown={e => {
                             if (e.key === 'Backspace' && !digit && index > 0) {
                               document.getElementById(`otp-${index - 1}`)?.focus();
@@ -155,7 +217,12 @@ export default function ForgotPasswordPage() {
                         />
                       ))}
                     </div>
-                    <Button type="submit" variant="electric" size="lg" className="w-full">
+                    {error ? (
+                      <span className="block text-center text-sm font-medium text-red-600 dark:text-red-400">
+                        {error}
+                      </span>
+                    ) : null}
+                    <Button type="submit" loading={isLoading} variant="electric" size="lg" className="w-full">
                       Verify Code
                     </Button>
                   </form>
@@ -180,7 +247,8 @@ export default function ForgotPasswordPage() {
                 </p>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+              <form onSubmit={handleSubmit} className="space-y-4 text-xs">     
+              {error ? <span className="block w-full rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-600 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400" role="alert">{error}</span>: ""}
                 <div>
                   <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
                     Email Address
@@ -189,7 +257,7 @@ export default function ForgotPasswordPage() {
                     type="email"
                     required
                     value={email}
-                    onChange={e => setEmail(e.target.value)}
+                    onChange={e =>( setEmail(e.target.value), setError(""))}
                     placeholder="name@company.com"
                     className="w-full px-3 py-2 text-sm rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-brand-500"
                   />
@@ -200,9 +268,9 @@ export default function ForgotPasswordPage() {
                   variant="electric"
                   size="lg"
                   className="w-full mt-2"
-                  loading={loading}
+                  loading={isLoading}
                 >
-                  Send Reset Link
+                  Send OTP
                 </Button>
               </form>
 

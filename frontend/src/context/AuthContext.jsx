@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from "react";
-import { login, register, verifyEmail, logout, getUser } from "../api/authApi";
+import { login, register, verifyEmail, logout, getUser, forgotPassword, verifyOTP, setNewPassword } from "../api/authApi";
 
 export const AuthContext = createContext();
 
@@ -14,14 +14,14 @@ export const AuthProvider = ({ children }) => {
         setError(null);
         try{
             const response = await getUser()
-            const getloggedInUser = response?.data?.user;
-              if (!response?.success || !loggedInUser) {
+            const loggedInUser = response?.data?.user;
+            if (!response?.success || !loggedInUser) {
                 throw new Error(response?.message || "The get login user response did not include a user.");
             }
-            setUser(getloggedInUser);
+            setUser(loggedInUser);
             setIsAuthenticated(true);
         }catch(error){
-            setError(error.message || "Unauthorised user");
+            //setError(error.message || "Unauthorised user");
             return null;
         }finally {
             setIsLoading(false);
@@ -98,6 +98,41 @@ export const AuthProvider = ({ children }) => {
         }
     }
 
+    const forgetPassword = async (email) => {
+        setIsLoading(true);
+        try{
+         const reponse = await forgotPassword(email)
+         return reponse
+        }catch(error){
+            setError(error.message)
+        }finally{
+            setIsLoading(false); 
+        }
+    }
+
+    const verifyOtp = async (email , otp) => {
+        setIsLoading(true); 
+        try{
+         const response = await verifyOTP(email ,otp)
+         return response
+        }catch(error){
+           setError(error.message)
+        }finally{
+          setIsLoading(false); 
+        }
+    }
+
+    const setnewPassword = async (email, password, confirmPassword) => {
+        try{
+         const response = await setNewPassword(email, password, confirmPassword)
+         return response
+        }catch(error){
+           setError(error.message)
+        }finally{
+           setIsLoading(false);
+        }
+    }
+
     return(
         <AuthContext.Provider value={{
             loginUser,
@@ -109,7 +144,10 @@ export const AuthProvider = ({ children }) => {
             setUser,
             isAuthenticated,
             userVerify,
-            logoutUser
+            logoutUser,
+            forgetPassword,
+            verifyOtp,
+            setnewPassword
              }} >
             {children}
         </AuthContext.Provider>

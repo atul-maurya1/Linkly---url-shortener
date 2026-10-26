@@ -127,7 +127,7 @@ export const verifyOTP = async (email, otp) => {
 
 export const setNewPassword = async (email, password , confirmPassword) => {
     try{
-        const response = await apiClient.post('/auth/new-password' {
+        const response = await apiClient.post('/auth/new-password', {
             email, password , confirmPassword
         })
         return response.data
