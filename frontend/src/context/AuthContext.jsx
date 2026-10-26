@@ -1,5 +1,5 @@
-import { createContext, useState } from "react";
-import { login, register, verifyEmail, logout } from "../api/authApi";
+import { createContext, useState, useEffect } from "react";
+import { login, register, verifyEmail, logout, getUser } from "../api/authApi";
 
 export const AuthContext = createContext();
 
@@ -8,6 +8,28 @@ export const AuthProvider = ({ children }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+    const getLoginUser = async () => {
+        setIsLoading(true);
+        setError(null);
+        try{
+            const response = await getUser()
+            const getloggedInUser = response?.data?.user;
+              if (!response?.success || !loggedInUser) {
+                throw new Error(response?.message || "The get login user response did not include a user.");
+            }
+            setUser(getloggedInUser);
+            setIsAuthenticated(true);
+        }catch(error){
+            setError(error.message || "Unauthorised user");
+            return null;
+        }finally {
+            setIsLoading(false);
+        }
+    }
+    useEffect(() => {
+       getLoginUser()
+    },[])
 
     const loginUser = async (email, password) => {
         setIsLoading(true);

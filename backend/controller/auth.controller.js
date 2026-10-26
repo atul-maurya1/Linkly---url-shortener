@@ -195,6 +195,24 @@ export const logout = asyncHandler(async (req, res) => {
 		.json(new apiResponse(200, {}, "User logout successfully"));
 });
 
+
+export const getUser = asyncHandler(async (req, res) => {
+	const userId = req.user._id;
+	if (!userId) {
+		throw new apiError(401, "user not authenticated");
+	}
+
+	const user = await User.findById(userId).select("email");
+	if (!user) {
+		throw new apiError(401, "user not authenticated");
+	}
+
+	return res
+		.status(200)
+		.json(new apiResponse(200, user, "User fected successfully"));
+});
+
+
 export const resendOtp = asyncHandler(async (req, res) => {
 	const { email } = req.body
 
