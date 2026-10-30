@@ -25,7 +25,8 @@ const urlSchema = new mongoose.Schema({
       type: Boolean,
       default: true
     },
-    expireAt: Date,
+    customAlias: String,
+    expiryDate: Date,
     title: String,
     totalClicksOnUrl: Number
   
